@@ -1,7 +1,8 @@
 # Bee_Scale_Pico_W
 Bee Scale Project with Pico W 
 
-Λογο τον φθηνών αισθητήρων χάνει ~150gr 
+Λάγο τον φθηνών αισθητήρων χάνει ~150gr 
+Στον φάκελο Docs θα βρείτε κάποιες οδηγίες και τα προϊόντα που χρειάζονται.
 
 ![Preview](https://github.com/dannyswolf/Bee_Scale_Pico_W/blob/master/images/%CE%94%CE%B9%CE%AC%CE%B3%CF%81%CE%B1%CE%BC%CE%BC%CE%B1.png)
 
