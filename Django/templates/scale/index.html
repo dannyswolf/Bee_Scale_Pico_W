@@ -1,0 +1,176 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include 'includes/sidebar.html' %}
+{% include 'includes/navigation-fullscreen.html' %}
+
+
+<br><br><br>
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+
+
+
+
+
+
+<!-- <div id="myDiv" style=" width:100%;max-width:1000px; height: 80%;max-height:800px;"></div> -->
+<div class="container-fluid py-4" >
+      <div class="row">
+        <div class="col-lg-0 col-md-0 mt-4 mb-4">
+          <div class="card z-index-2">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <h3 class="mb-0 " > Βάρος - Θερμοκρασία - Υγρασία - Τάση Μπαταρίας - Θερμοκρασία Pico</h3>
+              <p class="text-sm "><span class="font-weight-bolder">Απο {{ data_context.last.Ημερομηνία }}  {{ data_context.last.Ωρα }} μέχρι {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }}</span> </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm"> Τελευταία μέτρηση {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }} </p>
+              </div>
+
+
+            </div>
+            <div class="card-body" id="myDiv">
+              <div class="chart">
+                  <canvas  class="chart-canvas" height="470"></canvas>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include 'includes/footer.html' %}
+    </div>
+<!-- [{% for month in data_context %} {{ month.Ημερομηνία  }} {{ month.Ωρα  }}, Βάρος {{ month.Βάρος  }}, Pico_Θερμοκρασία {{ month.Pico_Θερμοκρασία  }}, <br> {% endfor %}] -->
+<script>
+
+
+
+var weight = {
+  type: 'scatter',
+  mode: "lines+markers",
+  name: 'KG',
+  text: ['KG Βάρος μελισσιού'],
+  marker: {
+    color: 'rgb(103, 220, 11)',
+    size: 12
+  },
+  line: {
+    color: 'rgb(103, 220, 11)',
+    width: 3
+  },
+  x: [{% for month in data_context %} "{{ month.Ημερομηνία  }} {{ month.Ωρα  }}", {% endfor %}],
+  y: [{% for month in data_context %} "{{ month.Βάρος  }}", {% endfor %}],
+
+
+}
+
+var temp = {
+  type: 'scatter',
+  mode: "lines+markers",
+  name: '°C',
+  text: ['°C Θερμοκρασία'],
+  marker: {
+    color: 'rgb(255,145, 37)',
+    size: 10
+  },
+  line: {
+    color: 'rgb(255,145, 37)',
+    width: 3
+  },
+  x: [{% for month in data_context %} "{{ month.Ημερομηνία  }} {{ month.Ωρα  }}", {% endfor %}],
+  y: [{% for month in data_context %} "{{ month.Temp  }}", {% endfor %}],
+
+}
+
+var volts = {
+  type: 'scatter',
+  mode: "lines+markers",
+  name: 'V',
+  text: ['V Volts που έχει το VSYS'],
+  marker: {
+    color: 'rgb(255, 39, 70)',
+    size: 10
+  },
+  line: {
+    color: 'rgb(255, 39, 70)',
+    width: 3
+  },
+  x: [{% for month in data_context %} "{{ month.Ημερομηνία  }} {{ month.Ωρα  }}", {% endfor %}],
+  y: [{% for month in data_context %} "{{ month.Volts  }}", {% endfor %}],
+
+}
+
+var humidity = {
+  type: 'scatter',
+  mode: "lines+markers",
+  name: '% Υγρασία',
+  text: ['% Υγρασία'],
+  marker: {
+    color: 'rgb(115, 204, 216)',
+    size: 10
+  },
+  line: {
+    color: 'rgb(115, 204, 216)',
+    width: 3
+  },
+  x: [{% for month in data_context %} "{{ month.Ημερομηνία  }} {{ month.Ωρα  }}", {% endfor %}],
+  y: [{% for month in data_context %} "{{ month.Humidity  }}", {% endfor %}],
+
+}
+
+var pico_temp = {
+  type: 'scatter',
+  mode: "lines+markers",
+  name: '°C Pico',
+  text: ['°C Θερμοκρασία Pico w'],
+  marker: {
+    color: 'rgb(8,161,236)',
+    size: 12
+  },
+  line: {
+    color: 'rgb(8,161,236)',
+    width: 3
+  },
+  x: [{% for month in data_context %} "{{ month.Ημερομηνία  }} {{ month.Ωρα  }}", {% endfor %}],
+  y: [{% for month in data_context %} "{{ month.Pico_Θερμοκρασία  }}", {% endfor %}],
+
+
+}
+
+var data = [weight, temp, volts, humidity, pico_temp];
+
+var layout = {
+legend: {
+    y: 0.5,
+    traceorder: 'reversed',
+    font: {size: 18},
+    yref: 'paper'
+  },
+  title: '{{chartLabel}}',
+  xaxis: {
+    //tickformat: 'dd/mm/YYYY %H:%M',
+    title: 'Ημερομηνία',
+    autorange: "reversed",
+    //showgrid: true,
+    zeroline: true
+  },
+  yaxis: {
+    title: 'Βάρος KG / Θερμοκρασία °C',
+    /* Set the tick label formatting rule using d3 formatting mini-languages */
+    tickformat: ' .',
+
+    showline: true,
+    //showgrid: true,
+  },
+
+};
+
+Plotly.newPlot('myDiv', data, layout);
+
+</script>
+
+{% endblock %}

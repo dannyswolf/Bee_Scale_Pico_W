@@ -1,0 +1,865 @@
+{% extends 'layouts/base.html' %}
+{% load i18n static %}
+
+{% block title %} Αρχική {% endblock title %}
+
+{% block content %}
+
+<!-- https://materializecss.com/icons.html -->
+
+    <div class="container-fluid py-4">
+      <div class="row">
+        <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+
+                {% if difference > 0 %}
+              <div class="icon icon-lg icon-shape bg-gradient-success shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-circle-plus"></i>
+                  {% else  %}
+                <div class="icon icon-lg icon-shape bg-gradient-danger shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-circle-minus"></i>{% endif %}
+              </div>
+
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize">24ωρη διαφορά {{chartLabel}}</p>
+                <h4 class="mb-0">{{difference}} Kg</h4>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Από {{ first_obj.Ημερομηνία}} {{ first_obj.Ωρα }}  <br> Μέχρι {{ latest_obj.Ημερομηνία}} {{ latest_obj.Ωρα }}  </span></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <div class="icon icon-lg icon-shape bg-gradient-info shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-up-long"></i>
+              </div>
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize">Υψηλότερο βάρος {{chartLabel}}</p>
+                <h4 class="mb-0">{{max_Βάρος}} Kg</h4>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Στις {{ max_Βάρος_date}} {{ max_Βάρος_time }} </span></p>
+            </div>
+          </div>
+        </div>
+          <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <div class="icon icon-lg icon-shape bg-gradient-info shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-down-long"></i>
+              </div>
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize">Χαμηλότερο βάρος {{chartLabel}}</p>
+                <h4 class="mb-0">{{min_weight}} Kg</h4>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Στις {{ min_weight_date}} {{ min_weight_time }} </span></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-temperature-arrow-up"></i>
+              </div>
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize">Υψηλότερη θερμοκρασία {{chartLabel}}</p>
+                <h4 class="mb-0">{{max_temp}} °C</h4>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Στις {{max_temp_date}} {{max_temp_time}} </span> </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-droplet"></i>
+              </div>
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize">Υψηλότερη υγρασία {{chartLabel}}</p>
+                <h4 class="mb-0">{{max_Humidity}} % </h4>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Στις {{max_Humidity_date}} {{max_Humidity_time}} </span> </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-2 col-sm-6 mb-xl-0 mb-4">
+          <div class="card">
+            <div class="card-header p-3 pt-2">
+              <div class="icon icon-lg icon-shape bg-gradient-success shadow-info text-center border-radius-xl mt-n4 position-absolute">
+                <i class="fa-solid fa-car-battery"></i>
+              </div>
+              <div class="text-end pt-1">
+                <p class="text-sm mb-0 text-capitalize">Μπαταρία</p>
+                <h4 class="mb-0">{% if battery_percent > 90 %} <i class="text-success fa-solid fa-battery-full"></i>  {{battery_percent}} %
+                  {% elif battery_percent > 75 %} <i class="text-success fa-solid fa-battery-three-quarters"></i>  {{battery_percent}} %
+                  {% elif battery_percent > 50 %} <i class="text-warning fa-solid fa-battery-half"></i>  {{battery_percent}} %
+                  {% elif battery_percent > 25 %} <i class="text-danger fa-solid fa-battery-quarter"></i>  {{battery_percent}} %
+                  {% elif battery_percent < 10 %} <i class="text-danger fa-solid fa-battery-empty"></i>  {{battery_percent}} %
+                  {% else %} <i class="text-danger fa-solid fa-battery-quarter"></i>  {{battery_percent}} % {% endif %}
+                </h4>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-3">
+              <p class="mb-0"><span class="text-success text-sm font-weight-bolder">Τελευταία στις {{latest_obj.Ημερομηνία}} {{latest_obj.Ωρα}} </span> </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p>
+      <div class="row">
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card z-index-2 ">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <div class="bg-gradient-info shadow-primary border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <canvas id="chart-line-weight" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-0 ">Βάρος ζυγαριάς 24 Ώρες </h6>
+              <p class="text-sm "><span class="font-weight-bolder">
+                <i class="fa-regular fa-calendar-days"></i>
+                Απο {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }} μέχρι {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }}</span> </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm"> Τελευταία μέτρηση {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }} </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card z-index-2  ">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <div class="bg-gradient-warning shadow-warning border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <canvas id="chart-line-temp" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-0 ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-thermometer-snow" viewBox="0 0 16 16">
+                  <path d="M5 12.5a1.5 1.5 0 1 1-2-1.415V9.5a.5.5 0 0 1 1 0v1.585A1.5 1.5 0 0 1 5 12.5z"/>
+                  <path d="M1 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0V2.5zM3.5 1A1.5 1.5 0 0 0 2 2.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0L5 10.486V2.5A1.5 1.5 0 0 0 3.5 1zm5 1a.5.5 0 0 1 .5.5v1.293l.646-.647a.5.5 0 0 1 .708.708L9 5.207v1.927l1.669-.963.495-1.85a.5.5 0 1 1 .966.26l-.237.882 1.12-.646a.5.5 0 0 1 .5.866l-1.12.646.884.237a.5.5 0 1 1-.26.966l-1.848-.495L9.5 8l1.669.963 1.849-.495a.5.5 0 1 1 .258.966l-.883.237 1.12.646a.5.5 0 0 1-.5.866l-1.12-.646.237.883a.5.5 0 1 1-.966.258L10.67 9.83 9 8.866v1.927l1.354 1.353a.5.5 0 0 1-.708.708L9 12.207V13.5a.5.5 0 0 1-1 0v-11a.5.5 0 0 1 .5-.5z"/>
+                </svg>
+                 Θερμοκρασία ζυγαριάς C 24 Ώρες</h6>
+              <p class="text-sm ">
+                <span class="font-weight-bolder">
+                  <i class="fa-regular fa-calendar-days"></i>
+                  Απο {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }} μέχρι {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }}</span> </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm"> Τελευταία μέτρηση {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }} </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 mt-4 mb-3">
+          <div class="card z-index-2 ">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <canvas id="chart-line-volts" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-0 ">Τάση μπαταρίας 24 Ώρες </h6>
+              <p class="text-sm ">
+                <span class="font-weight-bolder">
+                  <i class="fa-regular fa-calendar-days"></i>
+                  Απο {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }} μέχρι {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }}</span> </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm">Τελευταία μέτρηση {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </p>
+      <div class="row mt-4">
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card z-index-2 ">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <canvas id="chart-bar-max_weight_all_months" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-0 ">Μέγιστο βάρος ζυγαριάς τελευταίους μήνες</h6>
+              <p class="text-sm ">
+                <span class="font-weight-bolder">
+                  <i class="fa-regular fa-calendar-days"></i>
+                  Απο  {{ first_max_value_obj.Ημερομηνία }}  {{ first_max_value_obj.Ωρα }} μέχρι {{ latest_max_value_obj.Ημερομηνία }}  {{ latest_max_value_obj.Ωρα }}</span> </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm"> Τελευταία μέτρηση {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }} </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+          <div class="card z-index-2  ">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <canvas id="chart-line-pico-temp" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-0 "> Θερμοκρασία Pico W 24 Ώρες </h6>
+              <p class="text-sm ">
+                <span class="font-weight-bolder">
+                  <i class="fa-regular fa-calendar-days"></i>
+                  Απο {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }} μέχρι {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }}</span>  </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm"> Τελευταία μέτρηση {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }} </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2  ">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+              <div class="bg-gradient-info shadow-info border-radius-lg py-3 pe-1">
+                <div class="chart">
+                  <canvas id="chart-line-humidity" class="chart-canvas" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <h6 class="mb-0 ">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moisture" viewBox="0 0 16 16">
+                    <path d="M13.5 0a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V7.5h-1.5a.5.5 0 0 0 0 1H15v2.75h-.5a.5.5 0 0 0 0 1h.5V15h-1.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 .5-.5V.5a.5.5 0 0 0-.5-.5h-2zM7 1.5l.364-.343a.5.5 0 0 0-.728 0l-.002.002-.006.007-.022.023-.08.088a28.458 28.458 0 0 0-1.274 1.517c-.769.983-1.714 2.325-2.385 3.727C2.368 7.564 2 8.682 2 9.733 2 12.614 4.212 15 7 15s5-2.386 5-5.267c0-1.05-.368-2.169-.867-3.212-.671-1.402-1.616-2.744-2.385-3.727a28.458 28.458 0 0 0-1.354-1.605l-.022-.023-.006-.007-.002-.001L7 1.5zm0 0-.364-.343L7 1.5zm-.016.766L7 2.247l.016.019c.24.274.572.667.944 1.144.611.781 1.32 1.776 1.901 2.827H4.14c.58-1.051 1.29-2.046 1.9-2.827.373-.477.706-.87.945-1.144zM3 9.733c0-.755.244-1.612.638-2.496h6.724c.395.884.638 1.741.638 2.496C11 12.117 9.182 14 7 14s-4-1.883-4-4.267z"/>
+                  </svg>
+                Υγρασία ζυγαριάς % 24 Ώρες </h6>
+              <p class="text-sm ">
+                <span class="font-weight-bolder">
+                  <i class="fa-regular fa-calendar-days"></i>
+                  Απο {{ data_context.0.Ημερομηνία }}  {{ data_context.0.Ωρα }} μέχρι {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }}</span> </p>
+              <hr class="dark horizontal">
+              <div class="d-flex ">
+                <i class="material-icons text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm"> Τελευταία μέτρηση {{ data_context.23.Ημερομηνία }}  {{ data_context.23.Ωρα }} </p>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="card h-100">
+            <div class="card-header pb-0">
+              <h6>Orders overview</h6>
+              <p class="text-sm">
+                <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
+                <span class="font-weight-bold">24%</span> this month
+              </p>
+            </div>
+            <div class="card-body p-3">
+              <div class="timeline timeline-one-side">
+                <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-success text-gradient">notifications</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">$2400, Design changes</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">22 DEC 7:20 PM</p>
+                  </div>
+                </div>
+                <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-danger text-gradient">code</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #1832412</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 11 PM</p>
+                  </div>
+                </div>
+                <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-info text-gradient">shopping_cart</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">Server payments for April</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 9:34 PM</p>
+                  </div>
+                </div>
+                <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-warning text-gradient">credit_card</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">New card added for order #4395133</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">20 DEC 2:20 AM</p>
+                  </div>
+                </div>
+                <div class="timeline-block mb-3">
+                  <span class="timeline-step">
+                    <i class="material-icons text-primary text-gradient">key</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">Unlock packages for development</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">18 DEC 4:54 AM</p>
+                  </div>
+                </div>
+                <div class="timeline-block">
+                  <span class="timeline-step">
+                    <i class="material-icons text-dark text-gradient">payments</i>
+                  </span>
+                  <div class="timeline-content">
+                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #9583120</h6>
+                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">17 DEC</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include 'includes/footer.html' %}
+    </div>
+  {% endblock content %}
+
+  {% block scripts %}
+  <script>
+    var ctx = document.getElementById("chart-bar-max_weight_all_months").getContext("2d");
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: [{% for month in labels %} "{{ month  }}", {% endfor %}],
+        datasets: [{
+          label: "Βάρος",
+          tension: 0.4,
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "rgba(255, 255, 255, .8)",
+          data: [{% for obj in max_values_list %} "{{ obj.Βάρος  }}", {% endfor %}],
+          maxBarThickness: 6
+        }, ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+          }
+        },
+        interaction: {
+          intersect: true,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 500,
+              beginAtZero: true,
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+              color: "#fff"
+            },
+          },
+          x: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+
+    var ctx2 = document.getElementById("chart-line-pico-temp").getContext("2d");
+
+    new Chart(ctx2, {
+      type: "line",
+      data: {
+        labels: [{% for month in data_context %} "{{ month.Ωρα  }}", {% endfor %}],
+        datasets: [{
+          label: "Θερμοκρασία Pico W",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: [{% for month in data_context %} "{{ month.Pico_Θερμοκρασία  }}", {% endfor %}],
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+          }
+        },
+        interaction: {
+          intersect: true,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+    var ctx3 = document.getElementById("chart-line-volts").getContext("2d");
+
+
+    new Chart(ctx3, {
+      type: "line",
+      data: {
+        labels: [{% for month in data_context %} " {{ month.Ωρα  }}", {% endfor %}],
+        datasets: [{
+          label: "Τάση Μπαταρίας",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "white",
+          fill: true,
+          data: [{% for month in data_context %} "{{ month.Battery_Volts  }}", {% endfor %}],
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+          }
+        },
+        interaction: {
+          intersect: true,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            min: 1,
+            max: 14,
+            ticks: {
+              stepSize: 0.5,
+              display: true,
+              padding: 10,
+              color: '#f8f9fa',
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+    var ctx4 = document.getElementById("chart-line-weight").getContext("2d");
+
+    new Chart(ctx4, {
+      type: "line",
+      data: {
+        labels: [{% for month in data_context %} "{{ month.Ωρα  }}", {% endfor %}],
+        datasets: [{
+          label: "Βάρος Kg",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: [{% for month in data_context %} "{{ month.Βάρος  }}", {% endfor %}],
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+
+            ticks: {
+              // stepSize: 5,
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+    var ctx5 = document.getElementById("chart-line-temp").getContext("2d");
+
+    new Chart(ctx5, {
+      type: "line",
+      data: {
+        labels: [{% for month in data_context %} "{{ month.Ωρα  }}", {% endfor %}],
+        datasets: [{
+          label: "Θερμοκρασία χώρου C ",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: [{% for month in data_context %} "{{ month.Temp  }}", {% endfor %}],
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+          }
+        },
+        interaction: {
+          intersect: true,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              text: "C",
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            // min: -30,
+            // max: 50,
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              stepSize: 5,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+
+    var ctx6 = document.getElementById("chart-line-humidity").getContext("2d");
+
+
+    new Chart(ctx6, {
+      type: "line",
+      data: {
+        labels: [{% for month in data_context %} " {{ month.Ωρα  }}", {% endfor %}],
+        datasets: [{
+          label: "Υγρασία %",
+          tension: 0,
+          borderWidth: 0,
+          pointRadius: 5,
+          pointBackgroundColor: "rgba(255, 255, 255, .8)",
+          pointBorderColor: "transparent",
+          borderColor: "rgba(255, 255, 255, .8)",
+          borderWidth: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          data: [{% for month in data_context %} "{{ month.Humidity  }}", {% endfor %}],
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true,
+          }
+        },
+        interaction: {
+          intersect: true,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            //min: 0,
+           // max: 100,
+            ticks: {
+              stepSize: 5,
+              display: true,
+              padding: 10,
+              color: '#f8f9fa',
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: true,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: true,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+  </script>
+
+  {% endblock scripts %}

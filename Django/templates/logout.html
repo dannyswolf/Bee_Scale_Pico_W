@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+  <div class="login-box">
+        <div class="login-logo">
+            <h1><img src="{% static "img/service_book.png" %}" alt="Service Book" width="180" height="180"/>
+            </h1>
+        </div>
+    
+        <div class="card">
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+
+        Σίγουρα θέλετε αποσύνδεση;
+        </div>
+        <form  method="post">
+            {% csrf_token %}
+            
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+            
+            
+            
+            
+            
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-outline-primary btn-block">
+                        Αποσύνδεση
+                    </button>
+                </div>
+            </div>
+        </form>
+    
+            </div>
+        </div>
+    </div>
+    
+    
+    {% endblock %}

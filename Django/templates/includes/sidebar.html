@@ -1,0 +1,232 @@
+{% load i18n static admin_material %}
+
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-2 border-radius-xl my-3 fixed-start ms-3   bg-gradient-dark" id="sidenav-main">
+
+    <div class="sidenav-header">
+      <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+      <a class="navbar-brand m-0" href="" target="_blank">
+        <img src="/static/img/logo-ct.png" class="navbar-brand-img h-100" alt="main_logo">
+        <span class="ms-1 font-weight-bold text-white">Επιλογή μήνα</span>
+      </a>
+    </div>
+    <hr class="horizontal light mt-0 mb-2">
+    <div class="collapse navbar-collapse w-auto ps" id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+          <li class="nav-item">
+              <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                <a href="/weight/">
+                    <span class="nav-link-text ms-1 text-white">Τρέχων μήνας</span>
+                </a>
+              </div>
+          </li>
+{% if request.user.is_superuser %}
+ {% admin_get_menu as app_list %}
+      {% if app_list %}
+          {% for app in app_list %}
+              {% if app.has_perms and not app.pinned %}
+                <li class="nav-item">
+                  <span class="nav-link{% if app_label != app.label and app.url not in request.path|urlencode  %} collapsed{% endif %} text-white" data-bs-toggle="collapse" data-bs-target="#submenu-{{ app.app_label }}">
+                    <span class="d-flex justify-content-between align-items-center">
+                      <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <span class="sidebar-icon {{ app.icon }}"></span>
+                      </div>
+                      <a href="{{ app.url }}">
+                        <span class="nav-link-text ms-1 text-white">{{ app.label|slice:10 }}{% if app.label|length > 10 %}..{% endif %}</span>
+                      </a>
+                    </span>
+                  </span>
+
+                  {% if app.models %}
+                    <div class="multi-level ms-5 collapse {% if 'tables-bootstrap-' in segment or app_label == app.label or app.url in request.path|urlencode %} show {% endif %}" role="list" id="submenu-{{ app.app_label }}"                                                                                                       aria-expanded="{% if app_label == app.label or app.url in request.path|urlencode %}true{% else %}false{% endif %}">
+                      <ul class="flex-column nav">
+                        {% for model in app.models %}
+                          {% if model.url %}
+                            <li class="nav-item{% if 'bootstrap-tables' in segment or model.url in request.path|urlencode %} active {% endif %} list-unstyled">
+                              <a class="nav-link" href="{{ model.url }}">
+                                <span class="nav-link-text ms-1">{{ model.label }}</span>
+                              </a>
+                            </li>
+                          {% else %}
+                            <li class="nav-item list-unstyled">{{ model.label }}</li>
+                          {% endif %}
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
+                </li>
+              {% endif %}
+          {% endfor %}
+      {% endif %}
+   {% else %}
+
+                <li class="nav-item">
+                  <span class="nav-link text-white" data-bs-toggle="collapse" data-bs-target="#submenu-scale" aria-expanded="true">
+                    <span class="d-flex justify-content-between align-items-center">
+                      <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <span class="sidebar-icon None"></span>
+                      </div>
+                      <a href="/admin/scale/">
+                        <span class="nav-link-text ms-1 text-white">Μήνες</span>
+                      </a>
+                    </span>
+                  </span>
+
+
+                    <div class="multi-level ms-5 collapse show" role="list" id="submenu-scale" aria-expanded="false" style="">
+                      <ul class="flex-column nav">
+
+
+				<li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/January/">
+                                <span class="nav-link-text ms-1">Ιανουάριος</span>
+                              </a>
+                            </li>
+
+                          <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/February/">
+                                <span class="nav-link-text ms-1">Φεβρουάριος</span>
+                              </a>
+                            </li>
+
+				<li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/March/">
+                                <span class="nav-link-text ms-1">Μάρτιος</span>
+                              </a>
+                            </li>
+
+
+                            <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/April/">
+                                <span class="nav-link-text ms-1">Απρίλιος</span>
+                              </a>
+                            </li>
+
+
+			   <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/May/">
+                                <span class="nav-link-text ms-1">Μάιος</span>
+                              </a>
+                            </li>
+
+                            <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/June/">
+                                <span class="nav-link-text ms-1">Ιούνιος</span>
+                              </a>
+                            </li>
+
+                        <li class="nav-item list-unstyled">
+
+
+                              <a class="nav-link" href="/weight/July/">
+                                <span class="nav-link-text ms-1">Ιούλιος</span>
+                              </a>
+                            </li>
+
+
+
+                            <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/August/">
+                                <span class="nav-link-text ms-1">Αυγουστος</span>
+                              </a>
+                            </li>
+
+                        <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/September/">
+                                <span class="nav-link-text ms-1">Σεπτέμβριος</span>
+                              </a>
+                            </li>
+
+                            <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/October/">
+                                <span class="nav-link-text ms-1">Οκτώβριος</span>
+                              </a>
+                            </li>
+
+
+                          <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/November/">
+                                <span class="nav-link-text ms-1">Νοέμβριος</span>
+                              </a>
+                            </li>
+
+                            <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="/weight/December/">
+                                <span class="nav-link-text ms-1">Δεκέμβριος</span>
+                              </a>
+                            </li>
+
+
+
+                      </ul>
+                    </div>
+
+                </li>
+
+      {% endif %}
+
+
+                <li class="nav-item">
+                  <span class="nav-link text-white" data-bs-toggle="collapse" data-bs-target="#submenu2-scale" aria-expanded="true">
+                    <span class="d-flex justify-content-between align-items-center">
+                      <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <span class="sidebar-icon None"></span>
+                      </div>
+                      <a href="/admin/scale/">
+                        <span class="nav-link-text ms-1 text-white">Σύνδεση/Αποσύνδεση</span>
+                      </a>
+                    </span>
+                  </span>
+
+
+                    <div class="multi-level ms-5 collapse show" role="list" id="submenu2-scale" aria-expanded="false" style="">
+                      <ul class="flex-column nav">
+                        {% if request.user.is_superuser %}
+				            <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="{% url 'admin:index' %}">
+                                <span class="nav-link-text ms-1">Admin</span>
+                              </a>
+                            </li>
+                          <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="{% url 'logout' %}">
+                                <span class="nav-link-text ms-1">Αποσύνδεση</span>
+                              </a>
+                            </li>
+                      </ul>
+                {% else %}
+                          <li class="nav-item list-unstyled">
+                              <a class="nav-link" href="{% url 'login' %}">
+                                <span class="nav-link-text ms-1">Σύνδεση</span>
+                              </a>
+                            </li>
+                  {% endif %}
+                      </ul>
+                    </div>
+                </li>
+
+
+        <li class="nav-item">
+
+            <!--  -->
+
+        </li>
+
+
+      </ul>
+    <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
+        <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+    </div>
+        <div class="ps__rail-y" style="top: 0px; right: 0px;">
+            <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;"></div>
+        </div>
+    </div>
+    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+    </div>
+  <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
+      <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;">
+      </div>
+  </div>
+      <div class="ps__rail-y" style="top: 0px; right: 0px;">
+          <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px;">
+          </div>
+      </div>
+  </aside>
