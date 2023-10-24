@@ -71,7 +71,7 @@ def on_message(client, userdata, msg):
     from .models import January, February, March, April, May, June, July, August, September, October, November, December
     lists_of_months = [January, February, March, April, May, June, July, August, September, October, November, December]
     # πρέπει αυτά να είναι εκτός γιατί σε κάθε μήνυμα θα αλλάζουν
-    global temperature, humidity, weight, Pico_temp, system_volts, new_obj
+    global temperature, humidity, weight, Pico_temp, system_volts, new_obj, battery_volts, shunt_voltage
 
     print(10 * "*" + "Message from HiveMQ" + 10 * "*")
     # print(f"client:, {client}")  # <paho.mqtt.client.Client object at 0x7fb9f38c3f10>
@@ -89,12 +89,18 @@ def on_message(client, userdata, msg):
     elif msg.topic == 'picow/Pico_temp':
         print(5 * '-' + f"topic:, picow/Pico_temp,  msg.payload, {msg.payload}" + 5 * '-')
         Pico_temp = round(float(msg.payload), 1)
-
-        # Το picow/system_volts είναι το τελευταίο που στέλνει αρα μπορούμε να κάνουμε new_obj
-        # αφού ελέγξουμε οτι δεν υπάρχει ίδιο object ελέγχοντας τη διαφορά χρόνου με το τελευταίο
     elif msg.topic == 'picow/system_volts':
         print(5 * '-' + f"topic:, picow/system_volts,  msg.payload, {msg.payload}" + 5 * '-')
         system_volts = round(float(msg.payload), 1)
+    elif msg.topic == 'picow/battery_volts':
+        print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
+        battery_volts = round(float(msg.payload), 1)
+
+    elif msg.topic == 'picow/shunt_voltage':
+        print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
+        shunt_voltage = round(float(msg.payload), 2)
+        # Το picow/shunt_voltage είναι το τελευταίο που στέλνει αρα μπορούμε να κάνουμε new_obj
+        # αφού ελέγξουμε οτι δεν υπάρχει ίδιο object ελέγχοντας τη διαφορά χρόνου με το τελευταίο
 
         month_obj = lists_of_months[today_month_number - 1]
         latest_obj = month_obj.objects.first()  # first() γιατί το model επιστρέψει [-pk]
@@ -117,10 +123,12 @@ def on_message(client, userdata, msg):
             new_obj = lists_of_months[today_month_number - 1].objects.create(Βάρος=weight,
                                                                              Pico_Θερμοκρασία=Pico_temp,
                                                                              Volts=system_volts, Temp=temperature,
-                                                                             Humidity=humidity)
+                                                                             Humidity=humidity, Battery_Volts=battery_volts,
+                                                                             Shunt_Voltage=shunt_voltage)
 
-            print(10 * '-' + f"new_obj created, weight: {new_obj.Βάρος} Pico_temp: {new_obj.Pico_Θερμοκρασία}"
-                f"Volts: {new_obj.Volts} Temp: {new_obj.Temp} Humidity: {new_obj.Humidity}" + 10 * '-')
+            print(10 * '-' + f"new_obj created \n Weight: {new_obj.Βάρος} \n Pico temp: {new_obj.Pico_Θερμοκρασία} \n"
+                f"System volts: {new_obj.Volts} \n Temp: {new_obj.Temp} \n Humidity: {new_obj.Humidity} \n "
+                             f"Battery Volts: {new_obj.Battery_Volts} \n Shunt Voltage: {new_obj.Shunt_Voltage}" + 10 * '-')
 
     # print(5 * "*" + "Finish Message from HiveMQ" + 5 * "*")
 
