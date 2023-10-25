@@ -63,16 +63,15 @@ def add_weight(request, *args, **kwargs):
             humidity = decoded_data[4]
             Battery_Volts = decoded_data[5]
             Shunt_Voltage = decoded_data[6]
-            Current = decoded_data[7]
-            Power = decoded_data[8]
+            # Current = decoded_data[7]
+            # Power = decoded_data[8]
             today_month_number = datetime.today().month  # Επιστέφει μόνο τον αριθμό του μήνα, 12 αν είναι Δεκέμβρης
             # - 1 γιατί η λίστα ξεκινάει απο 0
             # Κάνω new_obj apo το mqtt_client.py
             new_obj = lists_of_months[today_month_number - 1].objects.create(Βάρος=weight, Pico_Θερμοκρασία=pico_temp,
                                                                             Volts=volts, Temp=temp, Humidity=humidity,
                                                                              Battery_Volts=Battery_Volts,
-                                                                             Shunt_Voltage=Shunt_Voltage,
-                                                                             Current=Current, Power=Power)
+                                                                             Shunt_Voltage=Shunt_Voltage)
 
             response_data = {'client_ip': client_ip, "weight": weight, "temp": temp,
                              'User-Agent': request.headers['User-Agent']}
