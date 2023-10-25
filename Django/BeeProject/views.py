@@ -11,7 +11,7 @@ from scale.models import January, February, March, April, May, June, July, Augus
 lists_of_months = [January, February, March, April, May, June, July, August, September, October, November, December]
 
 
-from django.db.models import Max
+
 
 
 def login_view(request):
@@ -50,15 +50,25 @@ def index(request):
     month_obj = lists_of_months[month_now - 1]
     # Latest values of every month
     max_values_list = []
+    min_values_list = []
     not_empty_max_values_list = []
+    not_empty_min_values_list = []
     # βάζω το πρώτο γιατί η κάθε class επιστέφει ordering = ['-pk'] ανάποδα
     for month in lists_of_months:
         obj = month.objects.order_by('-Βάρος').first()
+        obj1 = month.objects.order_by('Βάρος').first()
         max_values_list.append(obj)
+        min_values_list.append(obj1)
         if obj is not None:
             not_empty_max_values_list.append(obj)
+        if obj1 is not None:
+            not_empty_min_values_list.append(obj1)
+
     first_max_value_obj = not_empty_max_values_list[0]
     latest_max_value_obj = not_empty_max_values_list[-1]
+
+    first_min_value_obj = not_empty_min_values_list[0]
+    latest_min_value_obj = not_empty_min_values_list[-1]
 
     max_temp = month_obj.objects.order_by('-Temp').first()
     max_weight = month_obj.objects.order_by('-Βάρος').first()
@@ -66,13 +76,13 @@ def index(request):
     max_Pico_temp = month_obj.objects.order_by('-Pico_Θερμοκρασία').first()
     max_Humidity = month_obj.objects.order_by('-Humidity').first()
 
-    # Για να πάρω τελευταία τάση του VSYS
+    # Για να πάρω τελευταία τάση του Battery_Volts
     latest_obj = month_obj.objects.first()
     # max 13v 100%
-    #min 4v 0%
-    # (x-4) * 100 / 13 είναι το ποσοστο που θέλουμε
-    battery_percent = round(((latest_obj.Battery_Volts - 4) * 100) / 13)
-    print("battery_percent", battery_percent)
+    #min 10v 0%
+    # (x-10) * 100 / 13 το αποτέλεσμα είναι το ποσοστό που θέλουμε
+    battery_percent = round(((latest_obj.Battery_Volts - 10) * 100) / 13)
+    # print("battery_percent", battery_percent)
 
     # Επιστέφει τα τελευταία 24 δεδομένα
     month_qs = month_obj.objects.all().order_by('-ID')[:24][::-1]
@@ -120,6 +130,9 @@ def index(request):
         "max_values_list": max_values_list,
         "first_max_value_obj": first_max_value_obj,
         "latest_max_value_obj": latest_max_value_obj,
+        "min_values_list": min_values_list,
+        "first_min_value_obj": first_min_value_obj,
+        "latest_min_value_obj": latest_min_value_obj,
         'first_obj': first_obj,
         'difference': difference,
 
