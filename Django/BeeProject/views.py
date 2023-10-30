@@ -78,10 +78,11 @@ def index(request):
 
     # Για να πάρω τελευταία τάση του Battery_Volts
     latest_obj = month_obj.objects.first()
-    # max 13v 100%
-    #min 10v 0%
-    # (x-10) * 100 / 13 το αποτέλεσμα είναι το ποσοστό που θέλουμε
-    battery_percent = round(((latest_obj.Battery_Volts - 10) * 100) / 13)
+    # max 14v 100%
+    #min 10v 0% # μετά δε θα δουλεύει το router που θέλει 9V
+    # αρα η διαφορά τους είναι 4
+    # (x-10) * 100 / 4 το αποτέλεσμα είναι το ποσοστό που θέλουμε
+    battery_percent = round(((latest_obj.Battery_Volts - 10)  * 100) / 4)
     # print("battery_percent", battery_percent)
 
     # Επιστέφει τα τελευταία 24 δεδομένα
