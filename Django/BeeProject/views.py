@@ -48,6 +48,11 @@ def index(request):
     month_now = datetime.today().month
     # -1 γιατί η λίστα ξεκινάει απο 0 ενω month_now ξεκινάει απο 1
     month_obj = lists_of_months[month_now - 1]
+
+    # Αν έχει αλλάξει ο μήνας και δεν έχουμε ακόμα τιμές βγάζει σφάλματα
+    if not month_obj.objects.first(): # έλεγχος αν έχει αντικείμενο
+        month_obj = lists_of_months[month_now - 2] # να παίρνει τιμές απο τον προηγούμενο μήνα
+
     # Latest values of every month
     max_values_list = []
     min_values_list = []
