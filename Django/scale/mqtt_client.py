@@ -38,6 +38,7 @@ password = secrets["mqtt_key"]
 broker_url = secrets["broker"]
 port = 8883
 
+DEBUG = False
 
 # setting callbacks for different events to see if it works, print the message etc.
 def on_connect(client, userdata, flags, rc, properties=None):
@@ -45,8 +46,9 @@ def on_connect(client, userdata, flags, rc, properties=None):
     # print(f'client: {client}')  # <paho.mqtt.client.Client object at 0x7fba01943950>
     # print(f'userdata: {userdata}') # userdata: None
     # print(f'flags: {flags}')  # flags: 'session present': 0
-    print(5 * '-' + f'rc: {rc}' + 5 * '-')  # rc: Success
-    print(5 * "*" + "Finish Connected to HiveMQ" + 5 * "*")
+    if DEBUG:
+        print(5 * '-' + f'rc: {rc}' + 5 * '-')  # rc: Success
+        print(5 * "*" + "Finish Connected to HiveMQ" + 5 * "*")
 
 
 # with this callback you can see if your publishing was successful
@@ -56,12 +58,13 @@ def on_publish(client, userdata, mid, properties=None):
 
 # print which topic was subscribed to
 def on_subscribe(client, userdata, mid, granted_qos, properties=None):
-    # print(10 * "*" + "Subscribed to HiveMQ" + 30 * "*")
+    print(10 * "*" + "Subscribed to HiveMQ" + 30 * "*")
     # print(f'client:, {client}') #  client:, <paho.mqtt.client.Client object at 0x7fba0193bb90>
     # print(f'userdata:, {userdata}') # userdata:, None
     # print(f'mid:, {mid}') # mid:, 1
     # print(f'granted_qos:, {granted_qos}') # granted_qos:, [<paho.mqtt.reasoncodes.ReasonCodes object at 0x7fba008b0dd0>]
-    print(5 * "*" + "Finish subscribed to HiveMQ" + 5 * "*")
+    if DEBUG:
+        print(5 * "*" + "Finish subscribed to HiveMQ" + 5 * "*")
 
 
 # print message, useful for checking if it was successful
@@ -72,37 +75,52 @@ def on_message(client, userdata, msg):
     lists_of_months = [January, February, March, April, May, June, July, August, September, October, November, December]
     # πρέπει αυτά να είναι εκτός γιατί σε κάθε μήνυμα θα αλλάζουν
     global temperature, humidity, weight, Pico_temp, system_volts, new_obj, battery_volts, shunt_voltage
-
-    print(10 * "*" + "Message from HiveMQ" + 10 * "*")
-    # print(f"client:, {client}")  # <paho.mqtt.client.Client object at 0x7fb9f38c3f10>
-    # print(f"userdata:, {userdata}, msg.qos:, {msg.qos}")  # userdata:, None, msg.qos:, 0
+    if DEBUG:
+        print(10 * "*" + "Message from HiveMQ" + 10 * "*")
+        # print(f"client:, {client}")  # <paho.mqtt.client.Client object at 0x7fb9f38c3f10>
+        # print(f"userdata:, {userdata}, msg.qos:, {msg.qos}")  # userdata:, None, msg.qos:, 0
 
     if msg.topic == 'picow/temperature':
-        print(5 * '-' + f"topic:, picow/temperature,  msg.payload, {msg.payload}" + 5 * '-')
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/temperature,  msg.payload, {msg.payload}" + 5 * '-')
         temperature = msg.payload
     elif msg.topic == 'picow/humidity':
-        print(5 * '-' + f"topic:, picow/humidity,  msg.payload, {msg.payload}" + 5 * '-')
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/humidity,  msg.payload, {msg.payload}" + 5 * '-')
         humidity = msg.payload
     elif msg.topic == 'picow/weight':
-        print(5 * '-' + f"topic:, picow/weight,  msg.payload, {msg.payload}" + 5 * '-')
-        weight = round(float(msg.payload), 3)
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/weight,  msg.payload, {msg.payload}" + 5 * '-')
+        try:
+            weight = round(float(msg.payload), 3)
+        except ValueError: #  could not convert string to float: b'None'
+            weight = 0.000
     elif msg.topic == 'picow/Pico_temp':
-        print(5 * '-' + f"topic:, picow/Pico_temp,  msg.payload, {msg.payload}" + 5 * '-')
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/Pico_temp,  msg.payload, {msg.payload}" + 5 * '-')
         Pico_temp = round(float(msg.payload), 1)
     elif msg.topic == 'picow/system_volts':
-        print(5 * '-' + f"topic:, picow/system_volts,  msg.payload, {msg.payload}" + 5 * '-')
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/system_volts,  msg.payload, {msg.payload}" + 5 * '-')
         system_volts = round(float(msg.payload), 1)
     elif msg.topic == 'picow/battery_volts':
-        print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
-        battery_volts = round(float(msg.payload), 1)
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
+        battery_volts = round(float(msg.payload), 2)
 
     elif msg.topic == 'picow/shunt_voltage':
-        print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
+        if DEBUG:
+            print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
         shunt_voltage = round(float(msg.payload), 2)
         # Το picow/shunt_voltage είναι το τελευταίο που στέλνει αρα μπορούμε να κάνουμε new_obj
         # αφού ελέγξουμε οτι δεν υπάρχει ίδιο object ελέγχοντας τη διαφορά χρόνου με το τελευταίο
 
         month_obj = lists_of_months[today_month_number - 1]
+
+        # Αν έχει αλλάξει ο μήνας και δεν έχουμε ακόμα τιμές βγάζει σφάλματα
+        if not month_obj.objects.first():  # έλεγχος αν έχει αντικείμενο
+            month_obj = lists_of_months[today_month_number - 2]  # να παίρνει τιμές απο τον προηγούμενο μήνα
+
         latest_obj = month_obj.objects.first()  # first() γιατί το model επιστρέψει [-pk]
         latest_obj_date = latest_obj.Ημερομηνία  # datetime.date(2023, 8, 18)
         latest_obj_time = latest_obj.Ωρα
@@ -110,24 +128,26 @@ def on_message(client, userdata, msg):
         # Πρέπει η σύγκριση να γίνει με ίδια οχι datetime με date
         # datetime.today() => datetime.datetime(2023, 8, 18, 8, 40, 19, 243878)
         # datetime.today().date() => datetime.date(2023, 8, 18)
-        print(f"latest_obj_date {latest_obj_date}")
-        print(f"datetime.today().date() {datetime.today().date()}")
+        if DEBUG:
+            print(f"latest_obj_date {latest_obj_date}")
+            print(f"datetime.today().date() {datetime.today().date()}")
 
         # To calculate the difference, you have to convert the datetime.time object to a datetime.datetime object.
         object_time = datetime.combine(latest_obj_date, latest_obj_time)
         datetime_time_now = datetime.today()
         time_difference = datetime_time_now - object_time
         time_difference_in_minutes = time_difference.total_seconds() / 60
-        print(f"time_difference_in_minutes {time_difference_in_minutes}")
+        if DEBUG:
+            print(f"time_difference_in_minutes {time_difference_in_minutes}")
         if time_difference_in_minutes > 50:  # αν η διαφορά είναι μεγαλύτερη απο 58 λεπτά τότε να κάνει new_obj
             new_obj = lists_of_months[today_month_number - 1].objects.create(Βάρος=weight,
                                                                              Pico_Θερμοκρασία=Pico_temp,
                                                                              Volts=system_volts, Temp=temperature,
                                                                              Humidity=humidity, Battery_Volts=battery_volts,
                                                                              Shunt_Voltage=shunt_voltage)
-
-            print(10 * '-' + f"new_obj created \n Weight: {new_obj.Βάρος} \n Pico temp: {new_obj.Pico_Θερμοκρασία} \n"
-                f"System volts: {new_obj.Volts} \n Temp: {new_obj.Temp} \n Humidity: {new_obj.Humidity} \n "
+            if DEBUG:
+                print(10 * '-' + f"new_obj created \n Weight: {new_obj.Βάρος} \n Pico temp: {new_obj.Pico_Θερμοκρασία} \n"
+                            f"System volts: {new_obj.Volts} \n Temp: {new_obj.Temp} \n Humidity: {new_obj.Humidity} \n "
                              f"Battery Volts: {new_obj.Battery_Volts} \n Shunt Voltage: {new_obj.Shunt_Voltage}" + 10 * '-')
 
     # print(5 * "*" + "Finish Message from HiveMQ" + 5 * "*")
