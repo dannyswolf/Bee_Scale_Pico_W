@@ -38,7 +38,7 @@ password = secrets["mqtt_key"]
 broker_url = secrets["broker"]
 port = 8883
 
-DEBUG = False
+DEBUG = True
 
 # setting callbacks for different events to see if it works, print the message etc.
 def on_connect(client, userdata, flags, rc, properties=None):
@@ -110,7 +110,7 @@ def on_message(client, userdata, msg):
 
     elif msg.topic == 'picow/shunt_voltage':
         if DEBUG:
-            print(5 * '-' + f"topic:, picow/battery_volts,  msg.payload, {msg.payload}" + 5 * '-')
+            print(5 * '-' + f"topic:, picow/shunt_voltage,  msg.payload, {msg.payload}" + 5 * '-')
         shunt_voltage = round(float(msg.payload), 2)
         # Το picow/shunt_voltage είναι το τελευταίο που στέλνει αρα μπορούμε να κάνουμε new_obj
         # αφού ελέγξουμε οτι δεν υπάρχει ίδιο object ελέγχοντας τη διαφορά χρόνου με το τελευταίο
@@ -139,14 +139,14 @@ def on_message(client, userdata, msg):
         time_difference_in_minutes = time_difference.total_seconds() / 60
         if DEBUG:
             print(f"time_difference_in_minutes {time_difference_in_minutes}")
-        if time_difference_in_minutes > 50:  # αν η διαφορά είναι μεγαλύτερη απο 58 λεπτά τότε να κάνει new_obj
-            new_obj = lists_of_months[today_month_number - 1].objects.create(Βάρος=weight,
-                                                                             Pico_Θερμοκρασία=Pico_temp,
-                                                                             Volts=system_volts, Temp=temperature,
-                                                                             Humidity=humidity, Battery_Volts=battery_volts,
-                                                                             Shunt_Voltage=shunt_voltage)
-            if DEBUG:
-                print(10 * '-' + f"new_obj created \n Weight: {new_obj.Βάρος} \n Pico temp: {new_obj.Pico_Θερμοκρασία} \n"
+        # if time_difference_in_minutes > 50:  # αν η διαφορά είναι μεγαλύτερη απο 50 λεπτά τότε να κάνει new_obj
+        new_obj = lists_of_months[today_month_number - 1].objects.create(Βάρος=weight,
+                                                                         Pico_Θερμοκρασία=Pico_temp,
+                                                                         Volts=system_volts, Temp=temperature,
+                                                                         Humidity=humidity, Battery_Volts=battery_volts,
+                                                                         Shunt_Voltage=shunt_voltage)
+        if DEBUG:
+            print(10 * '-' + f"new_obj created \n Weight: {new_obj.Βάρος} \n Pico temp: {new_obj.Pico_Θερμοκρασία} \n"
                             f"System volts: {new_obj.Volts} \n Temp: {new_obj.Temp} \n Humidity: {new_obj.Humidity} \n "
                              f"Battery Volts: {new_obj.Battery_Volts} \n Shunt Voltage: {new_obj.Shunt_Voltage}" + 10 * '-')
 
@@ -156,7 +156,9 @@ def on_message(client, userdata, msg):
 # using MQTT version 5 here, for 3.1.1: MQTTv311, 3.1: MQTTv31
 # userdata is user defined data of any type, updated by user_data_set()
 # client_id is the given name of the client
-client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
+# Version 2 need paho.CallbackAPIVersion.VERSION2
+# client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
+client = paho.Client(paho.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 
 # enable TLS for secure connection
@@ -184,3 +186,5 @@ client.subscribe("picow/#", qos=2)
 # loop_forever for simplicity, here you need to stop the loop manually
 # you can also use loop_start and loop_stop
 # client.loop_start()
+
+client.loop_forever()
