@@ -38,16 +38,31 @@ password = secrets["mqtt_key"]
 broker_url = secrets["broker"]
 port = 8883
 
-DEBUG = True
+DEBUG = False
 
 # setting callbacks for different events to see if it works, print the message etc.
-def on_connect(client, userdata, flags, rc, properties=None):
-    print(5 * "*" + "Connected to HiveMQ" + 5 * "*")
+def on_connect(client, userdata, flags, reason_code, properties):
+    if DEBUG:
+        print(5 * "*" + "Connecting to HiveMQ" + 5 * "*")
+    if reason_code.is_failure:
+        print(f"Failed to connect: {reason_code}. loop_forever() will retry connection")
+    else:
+        # we should always subscribe from on_connect callback to be sure
+        # our subscribed is persisted across reconnections.
+        # subscribe to all topics of 'picow' by using the wildcard "#"
+        #    At most once (QoS 0)
+        #    At least once (QoS 1)
+        #    Exactly once (QoS 2)
+        client.subscribe("picow/#", qos=2)
+
     # print(f'client: {client}')  # <paho.mqtt.client.Client object at 0x7fba01943950>
     # print(f'userdata: {userdata}') # userdata: None
     # print(f'flags: {flags}')  # flags: 'session present': 0
+
+
+
     if DEBUG:
-        print(5 * '-' + f'rc: {rc}' + 5 * '-')  # rc: Success
+        # print(5 * '-' + f'rc: {rc}' + 5 * '-')  # rc: Success
         print(5 * "*" + "Finish Connected to HiveMQ" + 5 * "*")
 
 
@@ -58,7 +73,8 @@ def on_publish(client, userdata, mid, properties=None):
 
 # print which topic was subscribed to
 def on_subscribe(client, userdata, mid, granted_qos, properties=None):
-    print(10 * "*" + "Subscribed to HiveMQ" + 30 * "*")
+    if DEBUG:
+        print(10 * "*" + "Subscribed to HiveMQ" + 30 * "*")
     # print(f'client:, {client}') #  client:, <paho.mqtt.client.Client object at 0x7fba0193bb90>
     # print(f'userdata:, {userdata}') # userdata:, None
     # print(f'mid:, {mid}') # mid:, 1
@@ -83,7 +99,7 @@ def on_message(client, userdata, msg):
     if msg.topic == 'picow/temperature':
         if DEBUG:
             print(5 * '-' + f"topic:, picow/temperature,  msg.payload, {msg.payload}" + 5 * '-')
-        temperature = msg.payload
+        temperature = round(float(msg.payload), 2)
     elif msg.topic == 'picow/humidity':
         if DEBUG:
             print(5 * '-' + f"topic:, picow/humidity,  msg.payload, {msg.payload}" + 5 * '-')
@@ -173,18 +189,13 @@ client.on_subscribe = on_subscribe
 client.on_message = on_message
 # client.on_publish = on_publish # Δεν έχω δώσει δικαιώματα για publish
 
-# subscribe to all topics of 'picow' by using the wildcard "#"
-#    At most once (QoS 0)
-#    At least once (QoS 1)
-#    Exactly once (QoS 2)
 
-client.subscribe("picow/#", qos=2)
 
 # a single publish, this can also be done in loops, etc.
 # client.publish("encyclopedia/temperature", payload="hot", qos=1)
 
 # loop_forever for simplicity, here you need to stop the loop manually
 # you can also use loop_start and loop_stop
-# client.loop_start()
+client.loop_start()
 
-client.loop_forever()
+# client.loop_forever()
